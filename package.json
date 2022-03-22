@@ -12,8 +12,11 @@
   "dependencies": {
     "react": "17.0.2",
     "react-native": "0.67.3",
-    "react-native-boundary": "^1.1.1",
-    "react-native-camera": "^4.2.1"
+    "react-native-barcode-mask": "^1.2.4",
+    "react-native-boundary": "github:teambitvictory/react-native-boundary#b4d143406b41e866754b5a5fd0275bbd42949ab8",
+    "react-native-camera": "^4.2.1",
+    "react-native-permissions": "^3.3.1",
+    "react-native-push-notification": "^8.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.17.7",
