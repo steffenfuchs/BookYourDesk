@@ -30,47 +30,27 @@ const OpenSettingsButton = ({ children }) => {
   return <Button title={children} onPress={handlePress} />;
 };
 
-const requestLocationPermission = async () => {
-  try {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
-      {
-        title: "Background Location Permissions",
-        message:
-          "BookYourDesk App needs access to your location " +
-          "in the background to enable geofencing.",
-        buttonNeutral: "Ask Me Later",
-        buttonNegative: "Cancel",
-        buttonPositive: "OK"
-      }
-    );
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      console.log("The background location service is used");
-    } else {
-      console.log("Background location permission denied");
-    }
-  } catch (err) {
-    console.warn(err);
-  }
-};
-
 // Push-Notifications
 
 PushNotification.createChannel(
   {
-    channelId: 'boundary-demo',
-    channelName: 'Boundary Channel',
+    channelId: '1', //obligatory
+    channelName: 'Geofence Channel', //obligatory
     channelDescription: 'A channel to categorise your notifications',
-    playSound: false,
+    playSound: true,
     soundName: 'default',
     importance: Importance.HIGH,
-    vibrate: true,
   },
   created => {
-    if (created) console.log('Notification channel created: Boundary Channel');
-    else console.log('Notification channel already exist: Boundary Channel');
+    if (created) console.log('Notification channel created: Geofence Channel');
+    else console.log('Notification channel already exist: Geofence Channel');
   },
 );
+
+PushNotification.channelExists('1', function (exists) {
+  console.log(exists); // true/false
+});
+
 
 // Check-in button
 
@@ -93,9 +73,11 @@ state = {
     isVisible: false,
   }
 
+// Barcode
+
  barcodeRecognized = ({ barcodes, isBarcodeRead }) => {
      barcodes.forEach(barcode => console.log(barcode.data))
-     this.setState({ barcodes, isBarcodeRead: true})
+     this.setState({ barcodes })
    }
 
  renderBarcodes = () => (
@@ -109,8 +91,9 @@ state = {
           'QR code found',
           data,
           [
-            {text: 'Check in', onPress: () => console.log('Okay Pressed')},
             {text: 'Cancel', onPress: () => console.log('Check in cancelled'), style: 'cancel'},
+            {text: 'Scan again', onPress: () => console.log('Another scan triggered')},
+            {text: 'Check in', onPress: () => console.log('Okay Pressed')},
           ],
           { cancelable: true }
         )
@@ -141,11 +124,8 @@ state = {
 
           <Button title='New Scan'/>
           <OpenSettingsButton>If not yet done, please enable background location permission</OpenSettingsButton>
-          <Button title='request permissions' onPress={requestLocationPermission} style={styles.buttonNeutral}/>
-
           <SafeAreaView style={styles.container}>
           <Button title='Check-in' onPress={() => this.setState({ checkInStatus: nextCheckInStatus })}/>
-
           {this.state.isVisible?<Text style={styles.textChecked}>{checkIn.text}{"\n"}<Text style={styles.textChecked}>{checkIn.hint}</Text></Text>:null}
           <Button onPress={ this.renderCheckIn}
                       title="Render check in button"
@@ -169,24 +149,38 @@ state = {
 
             Boundary.on(Events.ENTER, id => {
               console.log(`You are getting close to your ${id}!`);
-              Alert.alert('Welcome!','You are getting closer to your office. Please do not forget to check in.');
+              //Alert.alert('Welcome!','You are getting closer to your office.\nPlease do not forget to check in.');
               PushNotification.localNotification({
-                    autoCancel: true,
-                    bigText:
-                      'Tap here to check in to your desk.',
-                    subText: 'You are getting closer to your office',
-                    title: 'Welcome!',
-                    message: 'Expand me to see more',
-                    vibrate: true,
-                    vibration: 300,
-                    playSound: true,
-                    soundName: 'default',
-                    invokeApp: true
+              channelId: '1',
+              autoCancel: true,
+              bigText: 'You are getting closer to your office',
+              subText: 'Welcome!',
+              title: 'Welcome!',
+              message: 'Tap here to check in.',
+              vibrate: true,
+              vibration: 300,
+              playSound: true,
+              soundName: 'default',
+              invokeApp: true
                   })
             });
 
             Boundary.on(Events.EXIT, id => {
-              console.log(`You just left your ${id}!`)
+              console.log(`You just left your ${id}!`);
+              // Alert.alert('Goodbye!','You just left your office. Please do not forget to check out.');
+              PushNotification.localNotification({
+              channelId: '1',
+                          autoCancel: true,
+                          bigText:'Open the app with one tap to check out.',
+                          subText: 'You just left your office',
+                          title: 'Goodbye!',
+                          message: 'Tap here to check out.',
+                          vibrate: true,
+                          vibration: 300,
+                          playSound: true,
+                          soundName: 'default',
+                          invokeApp: true
+                        })
             })
           }
 
