@@ -121,14 +121,12 @@ state = {
                          </RNCamera>
           </SafeAreaView>
 
-
-          <Button title='New Scan'/>
           <OpenSettingsButton>If not yet done, please enable background location permission</OpenSettingsButton>
           <SafeAreaView style={styles.container}>
           <Button title='Check-in' onPress={() => this.setState({ checkInStatus: nextCheckInStatus })}/>
           {this.state.isVisible?<Text style={styles.textChecked}>{checkIn.text}{"\n"}<Text style={styles.textChecked}>{checkIn.hint}</Text></Text>:null}
           <Button onPress={ this.renderCheckIn}
-                      title="Render check in button"
+                      title="Render check in text"
                       color="#841584" />
           </SafeAreaView>
         </>
